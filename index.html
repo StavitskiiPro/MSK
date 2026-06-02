@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stavitskii PRO | Premium Interior</title>
+    <style>
+        :root { --accent: #00ffc3; --gold: #ffd700; --bg: #050505; --card: #111; }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: #e0e0e0; }
+        
+        .reveal { opacity: 0; transform: translateY(20px); transition: all 0.6s ease; }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+        
+        .page-wrap { display: flex; flex-direction: column; min-height: 100vh; }
+        .side-image { width: 100%; height: 250px; background: url('https://i.ibb.co/Q3YWcLTs/image.jpg') center/cover; animation: intense-pulse 3s infinite alternate ease-in-out; }
+        @keyframes intense-pulse { 0% { filter: brightness(1); } 100% { filter: brightness(1.2); box-shadow: 0 0 30px rgba(255,215,0,0.2); } }
+        .main-wrapper { padding: 30px 15px; }
+        h1 { font-size: 2rem; margin-bottom: 15px; }
+        h1 span { color: var(--accent); }
+        .intro { margin-bottom: 30px; color: #888; font-size: 0.9rem; }
+        
+        .card { background: var(--card); padding: 20px; border-radius: 16px; margin-bottom: 15px; border: 1px solid #222; }
+        .head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .price { color: var(--gold); font-weight: 700; font-size: 1rem; }
+        
+        .gallery { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+        .photo-wrap { position: relative; cursor: pointer; }
+        .photo-item { aspect-ratio: 1; border-radius: 6px; background-size: cover; background-position: center; border: 1px solid #333; transition: 0.3s; }
+        .photo-wrap:hover .photo-item { border-color: var(--gold); transform: scale(1.05); }
+        
+        .total-amount { 
+            font-size: 2.2rem; color: var(--gold); font-weight: 900; margin-top: 15px;
+            text-shadow: 0 0 15px rgba(255,215,0,0.5); animation: glow 1.5s infinite alternate;
+        }
+        @keyframes glow { from { text-shadow: 0 0 10px rgba(255,215,0,0.4); } to { text-shadow: 0 0 20px rgba(255,215,0,0.8); } }
+        dialog { border: none; background: rgba(0,0,0,0.98); width: 100vw; height: 100vh; padding: 15px; }
+        .modal-content { width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .modal-content img { max-width: 100%; max-height: 70%; object-fit: contain; border-radius: 8px; }
+        
+        @media (min-width: 768px) {
+            .page-wrap { flex-direction: row; }
+            .side-image { width: 40%; height: 100vh; position: sticky; top: 0; }
+            .main-wrapper { width: 60%; padding: 60px; }
+            .total-amount { font-size: 3.5rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="page-wrap">
+        <div class="main-wrapper">
+            <h1 class="reveal">Stavitskii <span>PRO</span></h1>
+            <p class="intro reveal">Архитектурный стандарт качества. Безупречность в каждой детали.</p>
+            <div id="items"></div>
+            <div class="total-block reveal">
+                <div style="color: #888; letter-spacing: 2px; font-size: 0.7rem;">ИТОГОВАЯ СТОИМОСТЬ</div>
+                <div class="total-amount" id="totalPrice">0 ₽</div>
+            </div>
+        </div>
+        <div class="side-image"></div>
+    </div>
+    
+    <dialog id="modal"><div class="modal-content" onclick="document.getElementById('modal').close()"><img id="mImg"><div id="mText" style="color:white; margin-top:15px; text-align:center;"></div></div></dialog>
+    <script>
+        const data = [
+            {t: "Столешница, панели, полки", p: 906000, b: [
+                {u: "https://i.ibb.co/DgYyR899/478cc6b2-0c5d-4e99-8c58-411e93737a4a.jpg", d: "Чертеж"}, 
+                {u: "https://i.ibb.co/4RDMrzjR/8033.png", d: "Avant 8033"},
+                {u: "https://i.ibb.co/QvSwxGcW/7500.png", d: "Вариант 2: Декор Avant 7500"}
+            ]},
+            {t: "Кухня с островом Avant 9173", p: 307000, b: [{u: "https://i.ibb.co/C5vSKPKf/abe9745a-807f-46f9-a5dc-94caf9d1f7cf.jpg", d: "Остров"}, {u: "https://i.ibb.co/S4z2Lcfv/1f48bc43-1c2a-42ad-a0dc-08249b93ab4d.jpg", d: "Столешница"}, {u: "https://i.ibb.co/60gScSfz/9173.jpg", d: "Avant 9173"}]},
+            {t: "Умывальники Grandex Р-105", p: 198000, b: [{u: "https://i.ibb.co/9kNXxN5Y/50ddb6b4-3d10-4b8e-8714-ff4b7fbb1338.jpg", d: "Изделие 1"}, {u: "https://i.ibb.co/TDb0XZMV/beb09b18-6248-4983-8f3a-54065ec797ed.jpg", d: "Изделие 2"}, {u: "https://i.ibb.co/VYsKvwZH/392abe98-2aa3-4141-9668-654f83776fcf.jpg", d: "Изделие 3"}, {u: "https://i.ibb.co/YBWftwwv/104.png", d: "Grandex P-104"}]},
+            {t: "Тумба для био-камина", p: 168000, b: [{u: "https://i.ibb.co/F4p0pK0k/image.jpg", d: "Камин"}, {u: "https://i.ibb.co/jvBTVPJS/2.jpg", d: "Avant 5900"}]},
+            {t: "Тумба Neomarm", p: 194000, b: [{u: "https://i.ibb.co/sdcSK1RD/NM-102-Desert-Blow-INT-02.jpg", d: "Тумба"}, {u: "https://i.ibb.co/3wcQWTt/NM-102-Desert-Blow-INT-02.jpg", d: "NM 102"}]},
+            {t: "Оформление проема", p: 297000, b: [{u: "https://i.ibb.co/bj5RJxmr/73b50797-c641-44a1-83b0-9dc72c49c970.jpg", d: "Проём"}, {u: "https://i.ibb.co/gMxdjkXB/image.png", d: "Визуал"}]},
+            {t: "Логистика", p: 115000, b: [{d: "Замер, доставка, монтаж под ключ"}]}
+        ];
+        
+        const container = document.getElementById('items');
+        data.forEach(item => { container.innerHTML += `<div class="card reveal"><div class="head"><h3>${item.t}</h3><div class="price">${item.p.toLocaleString()} ₽</div></div><div class="gallery">${item.b.map(img => img.u ? `<div class="photo-wrap" onclick="show('${img.u}', '${img.d}')"><div class="photo-item" style="background-image: url('${img.u}')"></div></div>` : `<div style="font-size:0.7rem; color:#888; grid-column:span 4; padding: 5px;">${img.d}</div>`).join('')}</div></div>`; });
+        const o = new IntersectionObserver((e) => { e.forEach(en => { if(en.isIntersecting) en.target.classList.add('active'); }) }, { threshold: 0.1 });
+        document.querySelectorAll('.reveal').forEach(el => o.observe(el));
+        let c = 0, t = 2185000;
+        const i = setInterval(() => { c += t/60; document.getElementById('totalPrice').innerText = Math.round(c).toLocaleString('ru-RU') + ' ₽'; if(c >= t) {document.getElementById('totalPrice').innerText = t.toLocaleString('ru-RU') + ' ₽'; clearInterval(i);} }, 30);
+        function show(u, d) { document.getElementById('mImg').src = u; document.getElementById('mText').innerText = d; document.getElementById('modal').showModal(); }
+    </script>
+</body>
+</html>
